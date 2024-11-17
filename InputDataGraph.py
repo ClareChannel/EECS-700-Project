@@ -3,7 +3,7 @@ InputDataGraph class
 Authors: Elizabeth Channel, Samuel Buehler
 Description: Node-Edge-Based class based on BlinkFill and our Project Proposal.
 Date Created: 2024-11-01
-Date Modified: 2024-11-01
+Date Modified: 2024-11-16
 '''
 
 class InputDataGraph:

@@ -1,3 +1,11 @@
+'''
+Main
+Authors: Elizabeth Channel, Samuel Buehler
+Description: 
+Date Created: 2024-11-16
+Date Modified: 2024-11-16
+'''
+
 from InputDataGraph import InputDataGraph
 from Tokenizer import Tokenizer
 from Extractor import Extractor

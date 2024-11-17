@@ -4,7 +4,7 @@ Authors: Elizabeth Channel, Samuel Buehler
 Description: Class to identify tokens of interest from a body of text using 
              regular expressions.
 Date Created: 2024-11-01
-Date Modified: 2024-11-01
+Date Modified: 2024-11-16
 '''
 
 import re # Imports a library that enables the usage of regular expressions.

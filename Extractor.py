@@ -3,7 +3,7 @@ Extractor class
 Authors: Elizabeth Channel, Samuel Buehler
 Description: 
 Date Created: 2024-11-01
-Date Modified: 2024-11-01
+Date Modified: 2024-11-16
 '''
 
 class Extractor:
