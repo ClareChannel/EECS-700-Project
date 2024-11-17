@@ -1,0 +1,18 @@
+[
+    {
+        "text": "John Doe, contact me at john.doe@example.com or (123) 456-7890.",
+        "output": {
+            "name": ["John", "Doe"],
+            "email": ["john.doe@example.com"],
+            "phone": ["(123) 456-7890"]
+        }
+    },
+    {
+        "text": "Jane Smith, email: jane.smith@domain.com, phone: 987-654-3210.",
+        "output": {
+            "name": ["Jane", "Smith"],
+            "email": ["jane.smith@domain.com"],
+            "phone": ["987-654-3210"]
+        }
+    }
+]
