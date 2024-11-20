@@ -35,8 +35,8 @@ class Tokenizer:
             #none work for hypenation, special characters or titles (eg. Dr., Ms., etc...)
 
             "email": r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', # Email pattern
-            "phone": r'\b\d{3}[-.\s]??\d{3}[-.\s]??\d{4}\b|\(\d{3}\)\s*\d{3}[-.\s]??\d{4}\b'  # US phone number
-            # first half : 111-111-1111 format | second half : (111) 111-1111 format
+            "phone": r'\b\d{3}[-.\s]??\d{3}[-.\s]??\d{4}\b|\(\d{3}\)\s*\d{3}[-.\s]??\d{4}\b|\+\d{11}\b'  # US phone number
+            # first : 111-111-1111 format | second : (111) 111-1111 format | third : +12345678900 (international format)
         }
     
     def tokenize(self, text):

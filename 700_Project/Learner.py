@@ -41,13 +41,16 @@ class Learner:
         """
         for token in tokens:
             token_type = token["type"]
-            if token_type not in self.learned_patterns:
-                self.learned_patterns[token_type] = []
+            token_value = token["value"]
+            
+            if token_type not in self.learned_patterns: # Check if this type of token is in known type of tokens, if not:
+                self.learned_patterns[token_type] = [] # Add token type to known token types
 
-            if token["value"] in expected_output.get(token_type, []):
+            if token_value in expected_output.get(token_type, []): # 
                 # Save the token as a valid pattern
-                if token["value"] not in self.learned_patterns[token_type]:
-                    self.learned_patterns[token_type].append(token["value"])
+                if token_value not in self.learned_patterns[token_type]:
+                    print(f"Mismatch: Token '{token['value']}' not in expected {token_type}") # debugging line that displays any token mismatches.
+                    self.learned_patterns[token_type].append(token_value)
 
     def _save_rules(self):
         """

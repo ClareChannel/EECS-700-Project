@@ -2,16 +2,19 @@
     "name": [
         "John Doe",
         "Jane Smith",
-        "Lula Bell"
+        "Lula Bell",
+        "James Matthews"
     ],
     "email": [
         "john.doe@example.com",
         "jane.smith@domain.com",
-        "lula.bell@email.com"
+        "lula.bell@email.com",
+        "james.matthews@hotmail.org"
     ],
     "phone": [
         "(123) 456-7890",
         "987-654-3210",
-        "(913) 696-2345"
+        "(913) 696-2345",
+        "+19135933957"
     ]
 }
