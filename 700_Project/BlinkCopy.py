@@ -55,7 +55,7 @@ if __name__ == "__main__":
     blink_copy.train_from_file(training_file)
 
     # Test with new input
-    test_text = "Mark Spencer, phone 555-123-4567, email mark.spencer@company.com."
+    test_text = "Hello, I am Mark Spencer, my phone number is 555-123-4567, you can email me at mark.spencer@company.com."
     extracted_data = blink_copy.process_text(test_text)
 
     print("Extracted Data:", extracted_data)

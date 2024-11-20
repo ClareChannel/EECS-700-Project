@@ -15,12 +15,28 @@ class Tokenizer:
         # Defines the regular expression patterns for different tokens
         self.patterns = {
             #"name": r"\b[A-Z][a-z]+\s[A-Z][a-z]+\b" # Simple full name pattern
-            "name": r"\b[A-Z][a-z]*\b", # Potentially better name reg ex.
-            # Should allow for an infinitely long name. ('a', 'ab', or 'a' followed by any number of 'b's.)
-            # However, it currently only looks for one name, not a multi-part name. Also won't accept hyphenation.
+            #"name": r"\b[A-Z][a-z]*\b", # Potentially better name reg ex.
+
+            # does not recognize first word in sentence unless it is a name
+            #"name": r"(?<!\.\s)(?<!^)([A-Z][a-z]+(?:\s[A-Z][a-z]+)+)", #doesnt work with single name
+            #(?<!\.\s): Ensures the match does not follow a period and a space, avoiding picking up the first word of a sentence.
+            #(?<!^): Ensures the match does not occur at the very start of the string.
+            #[A-Z][a-z]+: Matches a single capitalized word.
+            #(?:\s[A-Z][a-z]+)+: Matches one or more additional capitalized words following the first (a typical full name).
+            #Grouping with (): Captures the full name as a single match.
+
+            #recognize both full names and single names 
+            # while maintaining the constraints of not treating the first capitalized word 
+            # in a sentence as a name unless it meets specific conditions
+            "name": r"(?<!\.\s)(?<!^)([A-Z][a-z]+(?:\s[A-Z][a-z]+)?)|^(?:(?:[A-Z][a-z]+\s){1}[A-Z][a-z]+)", #not working with first word as name :(
+            #(?:\s[A-Z][a-z]+)?: Makes the second word (last name) optional by adding ?
+            #(?<!\.\s) and (?<!^): first word of a sentence is not treated as a name
+
+            #none work for hypenation, special characters or titles (eg. Dr., Ms., etc...)
+
             "email": r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', # Email pattern
             "phone": r'\b\d{3}[-.\s]??\d{3}[-.\s]??\d{4}\b|\(\d{3}\)\s*\d{3}[-.\s]??\d{4}\b'  # US phone number
-            # Not sure I understand the part of the regex after the or (|).
+            # first half : 111-111-1111 format | second half : (111) 111-1111 format
         }
     
     def tokenize(self, text):
