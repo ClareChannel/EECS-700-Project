@@ -1,8 +1,8 @@
 '''
 Learning Module
 Authors: Elizabeth Channel, Samuel Buehler
-Description: 
-Date Modified: 2024-11-16
+Description: Class made to train/learn based on predefined examples.
+Date Modified: 2024-11-20
 '''
 
 import json
@@ -72,4 +72,3 @@ class Learner:
         Get the currently learned patterns.
         """
         return self.learned_patterns
-

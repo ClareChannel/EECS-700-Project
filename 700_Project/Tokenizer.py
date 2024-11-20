@@ -3,7 +3,7 @@ Tokenizer class
 Authors: Elizabeth Channel, Samuel Buehler
 Description: Class to identify tokens of interest from a body of text using 
              regular expressions.
-Date Modified: 2024-11-16
+Date Modified: 2024-11-20
 '''
 
 import re # Imports a library that enables the usage of regular expressions.
@@ -40,16 +40,19 @@ class Tokenizer:
         }
     
     def tokenize(self, text):
+        # Separates input text into individual tokens (separated by whitespace).
+        # Each token has a type, value, start index, and end index.
+        # Returns sorted list of tokens.
         tokens = []
 
         for type, pattern in self.patterns.items():
             for match in re.finditer(pattern, text): # Gets all matches of the patterns.
                                                      # https://docs.python.org/3/library/re.html#re.finditer
                 tokens.append({
-                    "type": type,
-                    "value": match.group(),
-                    "start": match.start(),
-                    "end": match.end()
+                    "type": type,           # The type of token ('name', 'email', 'phone').
+                    "value": match.group(), # The text value of the token.
+                    "start": match.start(), # Numerical index of where token begins in text.
+                    "end": match.end()      # Numerical index of where token ends in text.
                 })
         return sorted(tokens, key=lambda x: x["start"])
         # Returns sorted list of the tokens.
