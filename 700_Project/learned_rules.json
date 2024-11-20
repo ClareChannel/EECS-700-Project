@@ -1,11 +1,17 @@
 {
-    "name": [],
+    "name": [
+        "John Doe",
+        "Jane Smith",
+        "Lula Bell"
+    ],
     "email": [
         "john.doe@example.com",
-        "jane.smith@domain.com"
+        "jane.smith@domain.com",
+        "lula.bell@email.com"
     ],
     "phone": [
         "(123) 456-7890",
-        "987-654-3210"
+        "987-654-3210",
+        "(913) 696-2345"
     ]
 }

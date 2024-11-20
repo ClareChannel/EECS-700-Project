@@ -2,7 +2,7 @@
     {
         "text": "Hi, it is me, John Doe, contact me at john.doe@example.com or (123) 456-7890.",
         "output": {
-            "name": ["John", "Doe"],
+            "name": ["John Doe"],
             "email": ["john.doe@example.com"],
             "phone": ["(123) 456-7890"]
         }
@@ -10,17 +10,17 @@
     {
         "text": "Hello, I am Jane Smith, email: jane.smith@domain.com, phone: 987-654-3210.",
         "output": {
-            "name": ["Jane", "Smith"],
+            "name": ["Jane Smith"],
             "email": ["jane.smith@domain.com"],
             "phone": ["987-654-3210"]
         }
     },
     {
-        "text": "Hello, my name is Lula Bell, you can email me at lula.bell@email.com and my phone number is (123) 456-7890",
+        "text": "Hello, my name is Lula Bell, you can email me at lula.bell@email.com and my phone number is (913) 696-2345",
         "output": {
-            "name": ["Lula", "Bell"],
-            "email": ["lula.bell@domain.com"],
-            "phone": ["(123) 456-7890"]
+            "name": ["Lula Bell"],
+            "email": ["lula.bell@email.com"],
+            "phone": ["(913) 696-2345"]
         }
     }
 ]
