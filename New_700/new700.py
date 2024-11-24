@@ -1,6 +1,7 @@
 import re
 import json
 from typing import List, Tuple
+import InputDataGraph
 
 class RegexSynthesizer:
     def __init__(self, rules_file: str = "learned_rules.json"):
