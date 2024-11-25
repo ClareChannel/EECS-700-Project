@@ -6,7 +6,7 @@ Date Modified: 2024-11-23
 """
 
 import re
-import VertexLabel
+from VertexLabel import VertexLabel
 
 class InputDataGraph:
     """
@@ -29,7 +29,7 @@ class InputDataGraph:
         """
         # Create vertices
         for i in range(0, len(input) + 3):
-            self.nodes.add(VertexLabel( ((index, i),) ))
+            self.vertices.add(VertexLabel( ((index, i),) ))
 
         first = VertexLabel( ((index, 0),) )
         second = VertexLabel( ((index, 1),) )
@@ -61,7 +61,7 @@ class InputDataGraph:
         # Generates set of substring expressions.
         pass
 
-    def __rankNodes(self):
+    def rankNodes(self):
         # Assigns scores to the nodes of the InputDataGraph.
         self.rankedNodes = []
 
