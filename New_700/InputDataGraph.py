@@ -56,6 +56,8 @@ class InputDataGraph:
                 if len(self.vertices) > 1:
                     prevNode = list(self.vertices)[-2]
                     self.edges.setdefault((prevNode, node), set()).add((start, end - start))
+                print(f"Created node: {node}")
+            print(f"Found pattern: {pattern}")
 
     def __genSubStrExpr(self, input, leftIndex, rightIndex):
         # Generates set of substring expressions.
@@ -71,7 +73,10 @@ class InputDataGraph:
             # Assign score based on properties (ex: length, digit density)
             score += len(substr) # Substrings with larger lengths score higher
             score += sum(1 for c in substr if c.isdigit()) # Substrings with digits score higher
+            self.rankedNodes.append((node, score))
             self.rankedNodes.sort(key=lambda x: -x[1]) # Sort decending by score
+        
+        print(f"RankedNodes: {self.rankedNodes}")
 
     def intersect(self, secondGraph):
         # Find the intersection of the graph and the given secondGraph.
@@ -91,6 +96,7 @@ class InputDataGraph:
         
         for node, score in self.rankedNodes:
             substr = str(node)
+            print(f"Substr: {substr}")
 
             regex = re.escape(substr)
             regexes.append(regex)
