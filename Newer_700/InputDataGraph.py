@@ -64,6 +64,8 @@ class InputDataGraph:
         # Generates set of substring expressions.
         pass
 
+#Incorporating positional penalties or rewards based on node adjacency 
+# and known phone number structures
     def rankNodes(self):
         """
         Assigns scores to nodes based on their relevance to phone numbers.
@@ -81,6 +83,10 @@ class InputDataGraph:
                 elif re.match(r'^[-.()\s]+$', substr):  # Separators
                     score += 5
                 
+                # Penalize separators at the start
+                if substr and substr[0] in "()- ":
+                    score -= 2
+
                 # Add to ranked nodes if score > 0
                 if score > 0:
                     self.rankedNodes.append((node, score))
@@ -90,7 +96,7 @@ class InputDataGraph:
         print(f"RankedNodes: {self.rankedNodes}")
 
 
-
+#combining regex patterns directly
     def intersect(self, secondGraph):
         """
         Find the intersection of the graph with another graph.
@@ -109,8 +115,8 @@ class InputDataGraph:
         print(f"Intersected Graph Nodes: {newGraph.vertices}")
         return newGraph
 
-#create regex patterns by analyzing ranked nodes
-#incorporate tokens
+#Generate multiple regex fragments
+#attempt to merge overlapping patterns
 
     def getRegExes(self):
         """
@@ -122,18 +128,19 @@ class InputDataGraph:
 
         regex_parts = []
 
-        # Iterate through ranked nodes to construct regex patterns
+        # Generate regex for each ranked node
         for node, score in self.rankedNodes:
             substr = node.label[2]  # Extract substring
             if re.match(r'^\d+$', substr):  # Digits
                 regex_parts.append(r'\d{3,4}')  # Match groups of 3-4 digits
             elif re.match(r'^[-.()\s]+$', substr):  # Separators
                 regex_parts.append(r'[-.()\s]*')  # Match flexible separators
-        
-        # Combine fragments into a unified regex
-        combined_regex = ''.join(regex_parts)
-        print(f"Generated Regex: {combined_regex}")
-        return [combined_regex]
+
+        # Use `|` for alternatives and ensure order-independence
+        final_regex = '|'.join(set(regex_parts))
+        print(f"Generated Regex: {final_regex}")
+        return [final_regex]
+
 
 
 
