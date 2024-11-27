@@ -27,20 +27,7 @@ class InputDataGraph:
         """
         Creates the graph for the input string.
         """
-        # Create vertices
-        for i in range(0, len(input) + 3):
-            self.vertices.add(VertexLabel(((index, i),)))
-
-        first = VertexLabel(((index, 0),))
-        second = VertexLabel(((index, 1),))
-        secondToLast = VertexLabel(((index, len(input) + 1),))
-        last = VertexLabel(((index, len(input) + 2),))
-        self.edges[(first, second)] = {(-2, 1)}
-        self.edges.setdefault((secondToLast, last), set())
-        self.edges[(secondToLast, last)].add((-1, 1))
-        self.patterns.update({(-2, 1), (-1, 1)})
-
-        # Find all regex tokens within the input
+        prevNode = None
         regex_patterns = [
             r'\d+',         # Digits
             r'[()-]',       # Parentheses and hyphen
@@ -50,14 +37,25 @@ class InputDataGraph:
         for pattern in regex_patterns:
             for match in re.finditer(pattern, input):
                 start, end = match.start(), match.end()
-                substr = input[start:end]  # Capture actual substring
+                substr = input[start:end]
                 node = VertexLabel(((index, start), (index, end), substr))
                 self.vertices.add(node)
-                if len(self.vertices) > 1:
-                    prevNode = list(self.vertices)[-2]
+                if prevNode:
                     self.edges.setdefault((prevNode, node), set()).add((start, end - start))
+                prevNode = node
                 print(f"Created node: {node}")
             print(f"Found pattern: {pattern}")
+
+
+        # Debugging vertices and edges
+        print("\n--- Debugging Node and Edge Generation ---")
+        print("Vertices:")
+        for vertex in self.vertices:
+            print(f"  {vertex}")
+        print("Edges:")
+        for edge, patterns in self.edges.items():
+            print(f"  {edge}: {patterns}")
+        print("--- End of Node and Edge Generation ---\n")
 
 
     def __genSubStrExpr(self, input, leftIndex, rightIndex):
@@ -82,18 +80,19 @@ class InputDataGraph:
                     score += 10
                 elif re.match(r'^[-.()\s]+$', substr):  # Separators
                     score += 5
-                
-                # Penalize separators at the start
-                if substr and substr[0] in "()- ":
+
+                # Penalize single-character substrings unless they are separators
+                if len(substr) == 1 and not re.match(r'^[-.()\s]$', substr):
                     score -= 2
 
-                # Add to ranked nodes if score > 0
+                # Add nodes with a positive score
                 if score > 0:
                     self.rankedNodes.append((node, score))
-        
-        # Sort by descending score
+
+        # Sort nodes by descending score
         self.rankedNodes.sort(key=lambda x: -x[1])
-        print(f"RankedNodes: {self.rankedNodes}")
+        print(f"Ranked Nodes: {[str(n[0]) for n in self.rankedNodes]}")
+
 
 
 #combining regex patterns directly
@@ -127,20 +126,23 @@ class InputDataGraph:
             return []
 
         regex_parts = []
-
-        # Generate regex for each ranked node
         for node, score in self.rankedNodes:
-            substr = node.label[2]  # Extract substring
+            substr = node.label[2]
             if re.match(r'^\d+$', substr):  # Digits
                 regex_parts.append(r'\d{3,4}')  # Match groups of 3-4 digits
             elif re.match(r'^[-.()\s]+$', substr):  # Separators
                 regex_parts.append(r'[-.()\s]*')  # Match flexible separators
+            else:  # Generalize any other substrings
+                regex_parts.append(re.escape(substr))
 
-        # Use `|` for alternatives and ensure order-independence
-        final_regex = '|'.join(set(regex_parts))
-        print(f"Generated Regex: {final_regex}")
-        return [final_regex]
+        # Combine fragments into a regex for phone numbers
+        if regex_parts:
+            combined_regex = ''.join(regex_parts)
+            print(f"Generated Regex: {combined_regex}")
+            return [combined_regex]
 
+        print("No valid regex generated.")
+        return []
 
 
 

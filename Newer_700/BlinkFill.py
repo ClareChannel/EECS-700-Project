@@ -24,16 +24,16 @@ class BlinkFill:
         if not self.dataGraphs:
             raise ValueError("No examples provided.")
 
-        all_regexes = []
+        all_regexes = set()
         for graph in self.dataGraphs:
+            graph.rankNodes()  # Ensure nodes are ranked
             regexes = graph.getRegExes()
-            all_regexes.extend(regexes)
+            all_regexes.update(regexes)
 
         # Merge regexes into a single pattern
-        synthesized_regex = '|'.join(set(all_regexes))
+        synthesized_regex = '|'.join(all_regexes) if all_regexes else ''
         print(f"Synthesized Regex: {synthesized_regex}")
         return [synthesized_regex]
-
 
 
     
@@ -44,10 +44,14 @@ class BlinkFill:
         results = set()
         for regex in regexes:
             print(f"Applying regex: {regex}")  # Debugging applied regex
-            matches = re.findall(regex, inputString)
-            print(f"Matches found: {matches}")  # Debugging matches
-            results.update(matches)
+            try:
+                matches = re.findall(regex, inputString)
+                print(f"Matches found: {matches}")  # Debugging matches
+                results.update(matches)
+            except re.error as e:
+                print(f"Regex error: {e} with regex {regex}")
         return list(results)
+
 
 
 
@@ -55,10 +59,27 @@ class BlinkFill:
 
 if __name__ == "__main__":
     blinkfill = BlinkFill()
-    blinkfill.add_example("Call me at (123) 456-7890.", 0)
+
+    # Add examples
+    examples = [
+        "Call me at (123) 456-7890.",
+        "Reach me at 987-654-3210.",
+        "Contact: 123.456.7890.",
+        "Emergency number is 555 123 4567.",
+        "Alternate: 2223334444."
+    ]
+    for i, ex in enumerate(examples):
+        blinkfill.add_example(ex, i)
+
+    # Synthesize regex
     regexes = blinkfill.synthesize()
-    extractedData = blinkfill.extract("Call me at (123) 456-7890.", regexes)
-    print("Extracted Data:", extractedData)
+
+    # Test on new input
+    newInput = "My numbers are (555) 123-4578 and 222-333-4444. Also 123.456.7890."
+    extractedData = blinkfill.extract(newInput, regexes)
+    print(f"Extracted Data: {extractedData}")
+
+
 
 
 
