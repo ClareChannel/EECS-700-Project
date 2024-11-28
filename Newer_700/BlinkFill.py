@@ -61,13 +61,14 @@ if __name__ == "__main__":
     blinkfill = BlinkFill()
 
     # Add examples
-    examples = [
+    examples = [ "Call me at (123) 456-7890."]
+    '''examples = [
         "Call me at (123) 456-7890.",
         "Reach me at 987-654-3210.",
         "Contact: 123.456.7890.",
         "Emergency number is 555 123 4567.",
         "Alternate: 2223334444."
-    ]
+    ]'''
     for i, ex in enumerate(examples):
         blinkfill.add_example(ex, i)
 

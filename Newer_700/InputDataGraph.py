@@ -54,7 +54,7 @@ class InputDataGraph:
             print(f"  {vertex}")
         print("Edges:")
         for edge, patterns in self.edges.items():
-            print(f"  {edge}: {patterns}")
+            print(f"  {edge[0]}, {edge[1]}: {patterns}")
         print("--- End of Node and Edge Generation ---\n")
 
 
