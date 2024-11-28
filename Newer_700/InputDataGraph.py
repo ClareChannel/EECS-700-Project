@@ -7,6 +7,7 @@ Date Modified: 2024-11-23
 
 import re
 from VertexLabel import VertexLabel
+from Tokens import TOKENS
 
 class InputDataGraph:
     """
@@ -99,6 +100,9 @@ class InputDataGraph:
     def intersect(self, secondGraph):
         """
         Find the intersection of the graph with another graph.
+        TODO: Make this work and actually use it.
+              Might require (or at least be helpful to have) a working and legible
+              "print IDG" function.
         """
         newGraph = InputDataGraph("", 0)
 
@@ -144,11 +148,11 @@ class InputDataGraph:
         print("No valid regex generated.")
         return []
 
-
-
     def getDistance(self):
+        # We may need to make and use this. Lol.
         pass
     
     def __str__(self):
         # Overloads str function to print a rough text form of the graph.
+        # TODO: Make this work.
         pass

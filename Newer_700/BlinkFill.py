@@ -13,13 +13,21 @@ class BlinkFill:
 
     def add_example(self, inputString, index):
         """
+        Creates a child IDG using the given example and intersects it with the parent IDG.
         """
         dataGraph = InputDataGraph(inputString, index)
-        self.dataGraphs.append(dataGraph)
+        self.dataGraphs.append(dataGraph) # TODO: Replace with intersection of new child IDG and parent IDG.
     
     def synthesize(self):
         """
         Combine patterns across all data graphs to synthesize a single regex.
+        NOTE: I think this needs to be redone entirely once the IDG intersection is working.
+              I believe, ideally, that this function should try many or all of the paths
+              through the parent IDG, and compare the generated output to the given output.
+              When there's an output match, that's the regex it returns.
+              Considering this, we may need to teach the program (in the IDG file) how to
+              mark certain parts of a regex as "optional". That or we just have it OR (|)
+              together all regexes that led to successful output matches. That may be easier.
         """
         if not self.dataGraphs:
             raise ValueError("No examples provided.")
@@ -34,8 +42,6 @@ class BlinkFill:
         synthesized_regex = '|'.join(all_regexes) if all_regexes else ''
         print(f"Synthesized Regex: {synthesized_regex}")
         return [synthesized_regex]
-
-
     
     def extract(self, inputString, regexes):
         """
@@ -61,7 +67,8 @@ if __name__ == "__main__":
     blinkfill = BlinkFill()
 
     # Add examples
-    examples = [ "Call me at (123) 456-7890."]
+    examples = [ "Call me at (123) 456-7890." ]
+    #examples = [ ("Call me at (123) 456-7890.", "(123) 456-7890") ]
     '''examples = [
         "Call me at (123) 456-7890.",
         "Reach me at 987-654-3210.",
@@ -76,9 +83,13 @@ if __name__ == "__main__":
     regexes = blinkfill.synthesize()
 
     # Test on new input
+    ''' # Temporarily commenting this out.
+        # We should focus on getting it to work correctly with the input/output examples first.
+
     newInput = "My numbers are (555) 123-4578 and 222-333-4444. Also 123.456.7890."
     extractedData = blinkfill.extract(newInput, regexes)
     print(f"Extracted Data: {extractedData}")
+    '''
 
 
 
