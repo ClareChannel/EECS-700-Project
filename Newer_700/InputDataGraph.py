@@ -8,6 +8,7 @@ Date Modified: 2024-11-23
 import re
 from VertexLabel import VertexLabel
 from Tokens import TOKENS
+from copy import copy
 
 class InputDataGraph:
     """
@@ -94,8 +95,6 @@ class InputDataGraph:
         self.rankedNodes.sort(key=lambda x: -x[1])
         print(f"Ranked Nodes: {[str(n[0]) for n in self.rankedNodes]}")
 
-
-
 #combining regex patterns directly
     def intersect(self, secondGraph):
         """
@@ -104,7 +103,7 @@ class InputDataGraph:
               Might require (or at least be helpful to have) a working and legible
               "print IDG" function.
         """
-        newGraph = InputDataGraph("", 0)
+        '''newGraph = InputDataGraph("", 0)
 
         for node1 in self.vertices:
             for node2 in secondGraph.vertices:
@@ -116,7 +115,26 @@ class InputDataGraph:
                 newGraph.edges[edge] = self.edges[edge].intersection(secondGraph.edges[edge])
 
         print(f"Intersected Graph Nodes: {newGraph.vertices}")
-        return newGraph
+        return newGraph'''
+        temp: InputDataGraph = copy(self)
+        newVerts = set()
+        newEdges = dict()
+        newPatterns = set()
+
+        for selfEdgeKey in self.edges.keys():
+            for secondEdgeKey in secondGraph.edges.keys():
+                common = set.intersection(self.edges[selfEdgeKey], secondGraph.edges[secondEdgeKey])
+                if common:
+                    vertex1 = VertexLabel.join(secondEdgeKey[0], secondEdgeKey[0])
+                    vertex2 = VertexLabel.join(secondEdgeKey[1], secondEdgeKey[1])
+                    newVerts.add(vertex1)
+                    newVerts.add(vertex2)
+                    newEdges[(vertex1, vertex2)] = common
+                    newPatterns = newPatterns.union(common)
+        temp.edges = newEdges
+        temp.vertices = newVerts
+        temp.patterns = newPatterns
+        return temp
 
 #Generate multiple regex fragments
 #attempt to merge overlapping patterns

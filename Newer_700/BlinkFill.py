@@ -1,5 +1,3 @@
-
-
 import re
 from InputDataGraph import InputDataGraph
 
@@ -9,14 +7,19 @@ class BlinkFill:
     """
 
     def __init__(self):
-        self.dataGraphs = []
+        #self.dataGraphs = []
+        self.IDG = None
 
     def add_example(self, inputString, index):
         """
         Creates a child IDG using the given example and intersects it with the parent IDG.
         """
         dataGraph = InputDataGraph(inputString, index)
-        self.dataGraphs.append(dataGraph) # TODO: Replace with intersection of new child IDG and parent IDG.
+        #self.dataGraphs.append(dataGraph) # TODO: Replace with intersection of new child IDG and parent IDG.
+        if self.IDG is None: # If this is the first IDG created,
+            self.IDG = dataGraph # Set this IDG as the parent IDG
+        else: # If this is not the first IDG created,
+            self.IDG.intersect(dataGraph) # Intersect the child IDG with the parent IDG.
     
     def synthesize(self):
         """
@@ -29,14 +32,14 @@ class BlinkFill:
               mark certain parts of a regex as "optional". That or we just have it OR (|)
               together all regexes that led to successful output matches. That may be easier.
         """
-        if not self.dataGraphs:
+        if self.IDG is None:
             raise ValueError("No examples provided.")
 
         all_regexes = set()
-        for graph in self.dataGraphs:
-            graph.rankNodes()  # Ensure nodes are ranked
-            regexes = graph.getRegExes()
-            all_regexes.update(regexes)
+        #for graph in self.dataGraphs:
+        self.IDG.rankNodes()  # Ensure nodes are ranked
+        regexes = self.IDG.getRegExes()
+        all_regexes.update(regexes)
 
         # Merge regexes into a single pattern
         synthesized_regex = '|'.join(all_regexes) if all_regexes else ''
@@ -57,11 +60,6 @@ class BlinkFill:
             except re.error as e:
                 print(f"Regex error: {e} with regex {regex}")
         return list(results)
-
-
-
-
-
 
 if __name__ == "__main__":
     blinkfill = BlinkFill()
@@ -90,12 +88,3 @@ if __name__ == "__main__":
     extractedData = blinkfill.extract(newInput, regexes)
     print(f"Extracted Data: {extractedData}")
     '''
-
-
-
-
-
-
-
-
-
