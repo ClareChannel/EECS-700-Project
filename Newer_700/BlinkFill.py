@@ -14,16 +14,20 @@ class BlinkFill:
         """
         Creates a child IDG using the given example and intersects it with the parent IDG.
         """
-        dataGraph = InputDataGraph(inputString, index)
-        #self.dataGraphs.append(dataGraph) # TODO: Replace with intersection of new child IDG and parent IDG.
+        newDataGraph = InputDataGraph(inputString, index)
         if self.IDG is None: # If this is the first IDG created,
-            self.IDG = dataGraph # Set this IDG as the parent IDG
+            self.IDG = newDataGraph # Set this IDG as the parent IDG
         else: # If this is not the first IDG created,
-            self.IDG.intersect(dataGraph) # Intersect the child IDG with the parent IDG.
+            self.IDG.intersect(newDataGraph) # Intersect the child IDG with the parent IDG.
     
     def synthesize(self):
         """
         Combine patterns across all data graphs to synthesize a single regex.
+        Synthesizes a program/regular-expression via an InputDataGraph, testing it against
+        given input-output pairs.
+        Returns the best synthesized program/regular-expression.
+        """
+        """
         NOTE: I think this needs to be redone entirely once the IDG intersection is working.
               I believe, ideally, that this function should try many or all of the paths
               through the parent IDG, and compare the generated output to the given output.
@@ -34,9 +38,10 @@ class BlinkFill:
         """
         if self.IDG is None:
             raise ValueError("No examples provided.")
+        
+        # NOTE: May need to build a DAG, like in the paper.
 
         all_regexes = set()
-        #for graph in self.dataGraphs:
         self.IDG.rankNodes()  # Ensure nodes are ranked
         regexes = self.IDG.getRegExes()
         all_regexes.update(regexes)
@@ -65,7 +70,7 @@ if __name__ == "__main__":
     blinkfill = BlinkFill()
 
     # Add examples
-    examples = [ "Call me at (123) 456-7890." ]
+    examples = [ "Call me at (123) 456-7890.", "Reach me at 987-654-3210." ]
     #examples = [ ("Call me at (123) 456-7890.", "(123) 456-7890") ]
     '''examples = [
         "Call me at (123) 456-7890.",
