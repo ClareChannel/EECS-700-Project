@@ -1,3 +1,5 @@
+
+
 import re
 from InputDataGraph import InputDataGraph
 
@@ -7,49 +9,34 @@ class BlinkFill:
     """
 
     def __init__(self):
-        #self.dataGraphs = []
-        self.IDG = None
+        self.dataGraphs = []
 
     def add_example(self, inputString, index):
         """
-        Creates a child IDG using the given example and intersects it with the parent IDG.
         """
-        newDataGraph = InputDataGraph(inputString, index)
-        if self.IDG is None: # If this is the first IDG created,
-            self.IDG = newDataGraph # Set this IDG as the parent IDG
-        else: # If this is not the first IDG created,
-            self.IDG.intersect(newDataGraph) # Intersect the child IDG with the parent IDG.
+        dataGraph = InputDataGraph(inputString, index)
+        self.dataGraphs.append(dataGraph)
     
     def synthesize(self):
         """
         Combine patterns across all data graphs to synthesize a single regex.
-        Synthesizes a program/regular-expression via an InputDataGraph, testing it against
-        given input-output pairs.
-        Returns the best synthesized program/regular-expression.
         """
-        """
-        NOTE: I think this needs to be redone entirely once the IDG intersection is working.
-              I believe, ideally, that this function should try many or all of the paths
-              through the parent IDG, and compare the generated output to the given output.
-              When there's an output match, that's the regex it returns.
-              Considering this, we may need to teach the program (in the IDG file) how to
-              mark certain parts of a regex as "optional". That or we just have it OR (|)
-              together all regexes that led to successful output matches. That may be easier.
-        """
-        if self.IDG is None:
+        if not self.dataGraphs:
             raise ValueError("No examples provided.")
-        
-        # NOTE: May need to build a DAG, like in the paper.
 
         all_regexes = set()
-        self.IDG.rankNodes()  # Ensure nodes are ranked
-        regexes = self.IDG.getRegExes()
-        all_regexes.update(regexes)
+        for graph in self.dataGraphs:
+            graph.rankNodes()  # Ensure nodes are ranked
+            regexes = graph.getRegExes()
+            all_regexes.update(regexes)
 
         # Merge regexes into a single pattern
         synthesized_regex = '|'.join(all_regexes) if all_regexes else ''
         print(f"Synthesized Regex: {synthesized_regex}")
         return [synthesized_regex]
+
+
+
     
     def extract(self, inputString, regexes):
         """
@@ -66,19 +53,18 @@ class BlinkFill:
                 print(f"Regex error: {e} with regex {regex}")
         return list(results)
 
+
 if __name__ == "__main__":
     blinkfill = BlinkFill()
 
     # Add examples
-    examples = [ "Call me at (123) 456-7890.", "Reach me at 987-654-3210." ]
-    #examples = [ ("Call me at (123) 456-7890.", "(123) 456-7890") ]
-    '''examples = [
+    examples = [
         "Call me at (123) 456-7890.",
         "Reach me at 987-654-3210.",
         "Contact: 123.456.7890.",
         "Emergency number is 555 123 4567.",
         "Alternate: 2223334444."
-    ]'''
+    ]
     for i, ex in enumerate(examples):
         blinkfill.add_example(ex, i)
 
@@ -86,10 +72,7 @@ if __name__ == "__main__":
     regexes = blinkfill.synthesize()
 
     # Test on new input
-    ''' # Temporarily commenting this out.
-        # We should focus on getting it to work correctly with the input/output examples first.
-
     newInput = "My numbers are (555) 123-4578 and 222-333-4444. Also 123.456.7890."
     extractedData = blinkfill.extract(newInput, regexes)
     print(f"Extracted Data: {extractedData}")
-    '''
+

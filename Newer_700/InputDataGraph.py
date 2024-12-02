@@ -7,8 +7,6 @@ Date Modified: 2024-11-23
 
 import re
 from VertexLabel import VertexLabel
-from Tokens import TOKENS
-from copy import copy
 
 class InputDataGraph:
     """
@@ -56,7 +54,7 @@ class InputDataGraph:
             print(f"  {vertex}")
         print("Edges:")
         for edge, patterns in self.edges.items():
-            print(f"  {edge[0]}, {edge[1]}: {patterns}")
+            print(f"  {edge}: {patterns}")
         print("--- End of Node and Edge Generation ---\n")
 
 
@@ -95,46 +93,35 @@ class InputDataGraph:
         self.rankedNodes.sort(key=lambda x: -x[1])
         print(f"Ranked Nodes: {[str(n[0]) for n in self.rankedNodes]}")
 
+
 #combining regex patterns directly
     def intersect(self, secondGraph):
         """
-        Find the intersection of the graph with another graph.
-        TODO: Make this work and actually use it.
-              Might require (or at least be helpful to have) a working and legible
-              "print IDG" function.
+        Find the intersection of the graph with another graph, generalizing patterns.
         """
-        '''newGraph = InputDataGraph("", 0)
+        newGraph = InputDataGraph("", 0)
 
+        # Normalize and compare nodes
         for node1 in self.vertices:
             for node2 in secondGraph.vertices:
-                if node1 == node2:
-                    newGraph.vertices.add(node1)
+                label1 = node1.label[2]
+                label2 = node2.label[2]
 
+                # Generalize digits or separators
+                if re.match(r'^\d+$', label1) and re.match(r'^\d+$', label2):
+                    newGraph.vertices.add(VertexLabel((node1.label[0], node1.label[1], r'\d+')))
+                elif re.match(r'^[-.()\s]+$', label1) and re.match(r'^[-.()\s]+$', label2):
+                    newGraph.vertices.add(VertexLabel((node1.label[0], node1.label[1], r'[-.()\s]*')))
+
+        # Combine edges where nodes exist in both graphs
         for edge, patterns in self.edges.items():
             if edge in secondGraph.edges:
                 newGraph.edges[edge] = self.edges[edge].intersection(secondGraph.edges[edge])
 
-        print(f"Intersected Graph Nodes: {newGraph.vertices}")
-        return newGraph'''
-        temp: InputDataGraph = copy(self)
-        newVerts = set()
-        newEdges = dict()
-        newPatterns = set()
+        print(f"Intersected Graph Nodes: {[str(node) for node in newGraph.vertices]}")
+        return newGraph
 
-        for selfEdgeKey in self.edges.keys():
-            for secondEdgeKey in secondGraph.edges.keys():
-                common = set.intersection(self.edges[selfEdgeKey], secondGraph.edges[secondEdgeKey])
-                if common:
-                    vertex1 = VertexLabel.join(secondEdgeKey[0], secondEdgeKey[0])
-                    vertex2 = VertexLabel.join(secondEdgeKey[1], secondEdgeKey[1])
-                    newVerts.add(vertex1)
-                    newVerts.add(vertex2)
-                    newEdges[(vertex1, vertex2)] = common
-                    newPatterns = newPatterns.union(common)
-        temp.edges = newEdges
-        temp.vertices = newVerts
-        temp.patterns = newPatterns
-        return temp
+
 
 #Generate multiple regex fragments
 #attempt to merge overlapping patterns
@@ -159,18 +146,19 @@ class InputDataGraph:
 
         # Combine fragments into a regex for phone numbers
         if regex_parts:
-            combined_regex = ''.join(regex_parts)
+            combined_regex = r'(?:' + r')?(?:'.join(regex_parts) + r')?'  # Use optional groups
             print(f"Generated Regex: {combined_regex}")
             return [combined_regex]
 
         print("No valid regex generated.")
         return []
 
+
+
     def getDistance(self):
-        # We may need to make and use this. Lol.
         pass
     
     def __str__(self):
         # Overloads str function to print a rough text form of the graph.
-        # TODO: Make this work.
         pass
+
