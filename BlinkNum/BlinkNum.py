@@ -14,12 +14,12 @@ def GenInpDataGraph(columns):
     resulting graph for the spreadsheet data.
 
     Input: Set of all input rows (n), each for k columns/strings.
+    Output: Post-union graph.
     """
     G = {} # collection of generated graphs for each column
     k = len(columns[0])
     #for i = 1 to k:
     for i in range(0, k):
-
         #G_i = GenGraphColumn({v_i^1, ..., v_i^n}) # GenGraphColumn(sets[i])
         G = G.union(GenGraphColumn(columns[i]))
     #return union_(1 <= i <= k) G_i
@@ -28,7 +28,7 @@ def GenInpDataGraph(columns):
 #def GenGraphColumn( {(s_1, ..., s_n)} ): # input is strings for each row?
 def GenGraphColumn(input: set):
     """
-    
+    Input: Set of strings for each row.
     Output: InputDataGraph
     """
     #G := GenGraphStr(s_1)
@@ -51,7 +51,7 @@ def GenerateInputGraph(s): # s = input string
     #   a set of string id and index pair (id, idx),
     # L : E -> {(r,k)_i}_i maps each edge to a list of token matches.
     V = {}, E = {}, I = {}, L = {}
-    id = string2Id[s] # Need to find this function in the paper, if possible.
+    id = string2Id[s] # This function isn't in the paper. We could make something up.
     #foreach i in range(0, len(s) + 3):
     for i in range(0, len(s) + 3):
         #V = union(V, v_i) # unions with a node that doesn't exist yet...?
@@ -70,7 +70,7 @@ def GenerateInputGraph(s): # s = input string
             E = E.union(V[i], V[j])
             #c_s = s[leftIdx..rightIdx]
             constantString = s[leftIdx:rightIdx]
-            L((v_i,v_j)) = {(c_s, GetMId(c_s,s,i))}
+            L((v_i,v_j)) = {(c_s, GetMId(c_s,s,i))} # GetMId apparently uses has lookup. There's not etach more information than that.
             #foreach r in T and Match(r, c_s):
             for r in T and Match(r, c_s):
                 L((v_i, v_j)) = union(L((v_i, v_j)),(r,GetMId(r,s,i)))
@@ -116,14 +116,15 @@ def GenSubStrExpr(s, l, r, G):
     #return SubStr(s, p_l, p_r)
     return SubStr(s, pLeft, pRight)
 
-def GenerateDag( {v_1, ..., v_k}, o_s, G ):
+#def GenerateDag( {v_1, ..., v_k}, o_s, G ):
+def GenerateDag( vertices, outStr, graph ):
     """
     Inputs: Takes in input row {v_1, ..., v_k}, an output string o_s, and an IDG G.
     Output: a DAG that represents all string expressions in the language L_s that can transform
         the input strings to the output string.
     """
-    # First creates len(o_s) number of nodes with labels mu = {0,...,len(o_s)}
-    # Sets the start node mu^s to be the node with label 0, and final node mu^f
+    # First creates len(o_s) number of nodes with labels eta = {0,...,len(o_s)}
+    # Sets the start node eta^s to be the node with label 0, and final node eta^f
     #   with label len(o_s).
     # Iterates over all substrings o_s[i..j] of the output string, and adds an
     #   edge (i,j) between the nodes with labels i and j.
@@ -137,7 +138,8 @@ def RankInpGNodes(G):
     """
     
     """
-    # phi_mu (v_1, v_2) := sum_(id in I(v_1)) abs(v_2[id] - v_1[id])
+    # phi_eta (v_1, v_2) := sum_(id in I(v_1)) abs(v_2[id] - v_1[id])
+    # phi_eta is the "node distance function"
     #foreach v in V(G):
     for v in G.vertices:
         #v.out := 0, v.in := 0, v.score := 0
@@ -146,22 +148,49 @@ def RankInpGNodes(G):
     for v in G.vertices: # may have to "order" these first?
         #foreach (v,v_i) in E(G):
         for edge in G.edges:
-            #v.out := Max(v.out, v_i.out + phi_mu (v, v_i) )
+            #v.out := Max(v.out, v_i.out + phi_eta (v, v_i) )
             v.out = max(v.out, )
-    foreach v in V(G) in reverse topological order:
-        foreach (v_i, v) in E(G):
-            v.in := Max(v.in, v_i.in + phi_mu (v_i, v) )
-    foreach v in V(G):
-        v.score := v.in + v.out
-    return v with the highest v score
-    
+    #foreach v in V(G) in reverse topological order:
+    for v in G.vertices: # in "reverse topological order"?
+        #foreach (v_i, v) in E(G):
+        for v_i, v in G.edges:
+            #v.in := Max(v.in, v_i.in + phi_eta (v_i, v) )
+            v.inp = max(v.inp, v_i.inp ) # still needs the + phi_eta (v_i, v)
+    #foreach v in V(G):
+    for v in G.vertices:
+        #v.score := v.in + v.out
+        v.score = v.inp + v.out
+    #return v with the highest v score
+    maxScoreVert = G.vertices[0]
+    for v in G.vertices:
+        if v.score > maxScoreVert.score:
+            maxScoreVert = v
+    return maxScoreVert
+
+# Node Distance Function. Equivalent to the φ_η (phi_eta) function from the paper.
+def NodeDistance(vertex1, vertex2, I):
+    """
+    Python translation of the following pseudocode:
+    phi_eta (v_1, v_2) := sum_(id in I(v_1)) abs(v_2[id] - v_1[id])
+
+    Inputs: Two vertices (vertex1, vertex2) and 
+            an InputDataGraph's set of vertex labels (I).
+    Outputs: The sum of the equation.
+    """
+    ret = 0
+    for id in I[vertex1]:
+        ret += abs(vertex2.id - vertex1.id)
+    return ret
+
+# It's possible that Python's intersect function takes care of this well enough, 
+# but if we have intersection errors, then this should be filled out and used instead.
 def Intersect(G_1, G_2):
     """
     Inputs: Two IDGs G_1 = (V_1, E_1, I_1, L_1) and G_2 = (V_2, E_2, I_2, L_2)
     Outputs: New IDG G = (V, E, I, L)
     """
-    # V = {(v_i, v_j) such that v_i in V_1, v_j in V_2}
-    # E = {((v_i, v_j), (v_k, v_l)) such that (v_i, v_k) in E_1, (v_j, v_l) in E_2 }
-    # I = ((v_i, v_j)) = union(I_1(v_i), I_2(v_j)), for all v_i in V_1, v_j in V_2
-    # L = (((v_i, v_j), (v_k, v_l))) = { (r,k)|(r,k) is in L_1((v_i,v_k)) and (r,k) is in L_2((v_j, v_l))} for all E_1, (v_j, v_i) is in E_2
+    V = {} # V = {(v_i, v_j) such that v_i in V_1, v_j in V_2}
+    E = {} # E = {((v_i, v_j), (v_k, v_l)) such that (v_i, v_k) in E_1, (v_j, v_l) in E_2 }
+    I = {} # I = ((v_i, v_j)) = union(I_1(v_i), I_2(v_j)), for all v_i in V_1, v_j in V_2
+    L = {} # L = (((v_i, v_j), (v_k, v_l))) = { (r,k)|(r,k) is in L_1((v_i,v_k)) and (r,k) is in L_2((v_j, v_l))} for all E_1, (v_j, v_i) is in E_2
     return (V,E,I,L)
