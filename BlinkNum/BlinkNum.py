@@ -6,7 +6,7 @@ For now, expect it to have many, many syntax errors as I translate things.
 """
 
 # TODO: "Python-fiy" these functions, including:
-#       - Creating a proper InputDataGraph class.
+#       - Finish creating a proper InputDataGraph class. (InputDataGraph.py)
 #       - Modifying all functions to use InputDataGraph objects.
 #       - Figure out how to handle IDs. (Could use a hash or hex code, I guess.)
 
@@ -98,7 +98,7 @@ def LearnProgram( vertices, setOfOs ):
         #Dag d' := GenerateDag( (v_1^i, ..., v_k^i s), o_s^i, G)
         tempD = GenerateDag( setOfOs[i], G )
         #d := Intersect(d, d')
-        d = d.Intersection(tempD)
+        d = d.Intersect(tempD)
     return TopRankExpr(d)
 
 # Algorithm for generating a set of substring expressions given an input string 
@@ -187,8 +187,6 @@ def NodeDistance(vertex1, vertex2, I):
         ret += abs(vertex2.id - vertex1.id)
     return ret
 
-# It's possible that Python's intersect function takes care of this well enough, 
-# but if we have intersection errors, then this should be filled out and used instead.
 def Intersect(G_1, G_2):
     """
     Inputs: Two IDGs G_1 = (V_1, E_1, I_1, L_1) and G_2 = (V_2, E_2, I_2, L_2)
