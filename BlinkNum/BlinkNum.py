@@ -5,6 +5,11 @@ original BlinkFill paper to working Python code.
 For now, expect it to have many, many syntax errors as I translate things.
 """
 
+# TODO: "Python-fiy" these functions, including:
+#       - Creating a proper InputDataGraph class.
+#       - Modifying all functions to use InputDataGraph objects.
+#       - Figure out how to handle IDs. (Could use a hash or hex code, I guess.)
+
 # Algorithm for constructing the input graph for a set of n input rows each consisting of k columns/strings.
 #def GenInpDataGraph( { (v_1^1, ..., v_k^1) , ... , (v_1^n, ..., v_k^n) } )
 def GenInpDataGraph(columns):
@@ -189,8 +194,15 @@ def Intersect(G_1, G_2):
     Inputs: Two IDGs G_1 = (V_1, E_1, I_1, L_1) and G_2 = (V_2, E_2, I_2, L_2)
     Outputs: New IDG G = (V, E, I, L)
     """
-    V = {} # V = {(v_i, v_j) such that v_i in V_1, v_j in V_2}
-    E = {} # E = {((v_i, v_j), (v_k, v_l)) such that (v_i, v_k) in E_1, (v_j, v_l) in E_2 }
-    I = {} # I = ((v_i, v_j)) = union(I_1(v_i), I_2(v_j)), for all v_i in V_1, v_j in V_2
-    L = {} # L = (((v_i, v_j), (v_k, v_l))) = { (r,k)|(r,k) is in L_1((v_i,v_k)) and (r,k) is in L_2((v_j, v_l))} for all E_1, (v_j, v_i) is in E_2
+
+    # TODO: For Intersect, check if disjoint first, then merge/intersect.
+
+    # V = {(v_i, v_j) such that v_i in V_1, v_j in V_2}
+    V = G_1.vertices.intersection(G_2.vertices)
+    # E = {((v_i, v_j), (v_k, v_l)) such that (v_i, v_k) in E_1, (v_j, v_l) in E_2 }
+    E = G_1.edges.intersection(G_2.edges)
+    # I = ((v_i, v_j)) = union(I_1(v_i), I_2(v_j)), for all v_i in V_1, v_j in V_2
+    I = G_1.I.intersection(G_2.I)
+    # L = (((v_i, v_j), (v_k, v_l))) = { (r,k)|(r,k) is in L_1((v_i,v_k)) and (r,k) is in L_2((v_j, v_l))} for all E_1, (v_j, v_i) is in E_2
+    L = G_1.L.intersection(G_2.L)
     return (V,E,I,L)
