@@ -6,13 +6,13 @@ def LearnProgram( vertices, setOfOs ):
     Inputs: Vertices and Examples.
     Outputs: Top ranked expression.
     """
-    G = GenInpDataGraph(vertices[0])
+    G = GenInpDataGraph(vertices[0]) # TODO: This doesn't work anymore due to separation of classes.
     d = GenerateDag( setOfOs[0], G )
     m = len(setOfOs)
     for i in range(1,m):
         tempD = GenerateDag( setOfOs[i], G )
         d = d.Intersect(tempD)
-    return TopRankExpr(d)
+    return TopRankExpr(d) # TODO: We still need to make this function, or modify InputDataGraph.RankInpGNodes()
 
 def GenSubStrExpr(inStr, leftIdx, rightIdx, graph):
     """
@@ -27,8 +27,8 @@ def GenSubStrExpr(inStr, leftIdx, rightIdx, graph):
     for v in range(0, len(G.vertices) + 1):
         if (id, l) in I(v): V_l = union(V_l, {v})
         if (id, r) in I(v): V_r = union(V_r, {v})
-    pLeft = vLeft.union(ConstantPos(l))
-    pRight = vRight.union(ConstantPos(r))
+    pLeft = vLeft.union(ConstantPos(l)) # TODO: We still need to figure out ConstantPos()
+    pRight = vRight.union(ConstantPos(r)) # TODO: We still need to figure out ConstantPos()
     return SubStr(s, pLeft, pRight)
 
 def GenerateDag( vertices, outStr, graph ):
@@ -38,6 +38,7 @@ def GenerateDag( vertices, outStr, graph ):
         the input strings to the output string.
     """
     # TODO: Finish this.
+    
     # First creates len(o_s) number of nodes with labels eta = {0,...,len(o_s)}
     # Sets the start node eta^s to be the node with label 0, and final node eta^f
     #   with label len(o_s).
