@@ -60,9 +60,10 @@ class InputDataGraph:
         """
         
         """
-
         for vertex in self.vertices:
-            vertex.out = 0, vertex.inp = 0, vertex.score = 0
+            vertex.out = 0
+            vertex.inp = 0
+            vertex.score = 0
         for vertex in self.vertices: # TODO: put the vertices in topological order
             for edge in self.edges:
                 edge.vertex1.out = max(edge.vertex2.out + self.NodeDistance(edge.vertex1, edge.vertex2))
