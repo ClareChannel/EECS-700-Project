@@ -49,6 +49,17 @@ def GenerateDag( vertices, outStr, graph ):
     #   of substring expressions obtained by calling GenSubStrExpr(v_k,l,r,G) 
     #   (for each (k,l,r) such that v_k[l..(r-1)] = o_s[i..j]).
 
+def Synthesize( ins, outs ):
+    """
+    Inputs: Arrays of input and output strings.
+    Output: The best regex, if any are possible.
+    """
+    pass
+
 if __name__ == "__main__":
     # TODO: Put everything together.
-    pass
+    inputs = ['Call me at 913-213-3825.', 'You can reach me at (923) 328-3253', 'My number is +1-390-623-6345, send me a text at anytime!']
+    outputs = ['913-213-3825', '(923) 328-3253', '+1-390-623-6345']
+    bestProg = Synthesize( inputs, outputs )
+
+    # TODO: Once bestProg is a thing, use it on a new input without giving it an output to check.
