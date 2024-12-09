@@ -101,25 +101,33 @@ class InputDataGraph:
         """
         newGraph = InputDataGraph("", 0)
 
-        # Normalize and compare nodes
+        # Compare and generalize nodes
         for node1 in self.vertices:
             for node2 in secondGraph.vertices:
                 label1 = node1.label[2]
                 label2 = node2.label[2]
 
-                # Generalize digits or separators
+                # Generalize labels based on pattern similarity
                 if re.match(r'^\d+$', label1) and re.match(r'^\d+$', label2):
-                    newGraph.vertices.add(VertexLabel((node1.label[0], node1.label[1], r'\d+')))
+                    generalized_label = r'\d+'
                 elif re.match(r'^[-.()\s]+$', label1) and re.match(r'^[-.()\s]+$', label2):
-                    newGraph.vertices.add(VertexLabel((node1.label[0], node1.label[1], r'[-.()\s]*')))
+                    generalized_label = r'[-.()\s]*'
+                else:
+                    generalized_label = None
 
-        # Combine edges where nodes exist in both graphs
+                if generalized_label:
+                    newGraph.vertices.add(VertexLabel((node1.label[0], node1.label[1], generalized_label)))
+
+        # Merge edges with overlapping patterns
         for edge, patterns in self.edges.items():
             if edge in secondGraph.edges:
-                newGraph.edges[edge] = self.edges[edge].intersection(secondGraph.edges[edge])
+                combined_patterns = self.edges[edge].intersection(secondGraph.edges[edge])
+                if combined_patterns:
+                    newGraph.edges[edge] = combined_patterns
 
         print(f"Intersected Graph Nodes: {[str(node) for node in newGraph.vertices]}")
         return newGraph
+
 
 
 
@@ -146,12 +154,13 @@ class InputDataGraph:
 
         # Combine fragments into a regex for phone numbers
         if regex_parts:
-            combined_regex = r'(?:' + r')?(?:'.join(regex_parts) + r')?'  # Use optional groups
+            combined_regex = r'\b' + r''.join(regex_parts) + r'\b'  # Add word boundaries
             print(f"Generated Regex: {combined_regex}")
             return [combined_regex]
 
         print("No valid regex generated.")
         return []
+
 
 
 

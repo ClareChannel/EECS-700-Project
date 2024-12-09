@@ -54,6 +54,7 @@ class BlinkFill:
         return list(results)
 
 
+
 if __name__ == "__main__":
     blinkfill = BlinkFill()
 
