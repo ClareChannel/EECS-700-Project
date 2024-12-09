@@ -1,18 +1,53 @@
+import re
 from InputDataGraph import InputDataGraph
+from Dag import DAG
 
-def LearnProgram( vertices, setOfOs ):
+def LearnProgram( vertices, inOutExs ):
     """
     Learns an expression that conforms to a set of m examples.
-    Inputs: Vertices and Examples.
+    Inputs: Input Rows and In-Out Examples.
     Outputs: Top ranked expression.
     """
-    G = GenInpDataGraph(vertices[0]) # TODO: This doesn't work anymore due to separation of classes.
-    d = GenerateDag( setOfOs[0], G )
-    m = len(setOfOs)
+    IDG = InputDataGraph("")
+    G = IDG.GenInpDataGraph(vertices) # It's supposed to make the IDG given the input rows. How?
+    dag = GenerateDag( inOutExs[0], G )
+    m = len(inOutExs)
     for i in range(1,m):
-        tempD = GenerateDag( setOfOs[i], G )
-        d = d.Intersect(tempD)
-    return TopRankExpr(d) # TODO: We still need to make this function, or modify InputDataGraph.RankInpGNodes()
+        tempD = GenerateDag( inOutExs[i], G )
+        dag = IntersectDags(dag, tempD)
+    return TopRankExpr(dag)
+
+def IntersectDags(dag1, dag2):
+    """
+    
+    """
+    intersected = DAG("")
+    intersected.nodes = list(set(dag1.nodes).intersection(set(dag2.nodes)))
+
+    for edge, labels1 in dag1.edges.items():
+        if edge in dag2.edges:
+            commonLabels = [
+                label for label in labels1 if label in dag2.edges[edge]
+            ]
+            if commonLabels:
+                intersected.edges[edge] = commonLabels
+    return intersected
+
+def TopRankExpr(dag):
+    """
+    
+    """
+    scores = {}
+    print("DAG Edges:", dag.edges)
+    for edge, transformations in dag.edges.items():
+        for transformation in transformations:
+            score = len(transformation["constant"])
+            scores[transformation] = scores.get(transformation, 0) + score
+    
+    return max(scores, key=scores.get)
+
+def GenerateRegex(transformation):
+    return re.escape(transformation["constant"])
 
 def GenSubStrExpr(inStr, leftIdx, rightIdx, graph):
     """
@@ -21,7 +56,8 @@ def GenSubStrExpr(inStr, leftIdx, rightIdx, graph):
             right index of the substring (rightIdx), InputDataGraph (graph).
     Outputs: substring (SubStr).
     """
-    id = string2Id[s]
+    print(f"InStr={inStr}")
+    id = hash(inStr) # Arbitrary unique ID for a given substring
     vLeft = {}
     vRight = {}
     for v in range(0, len(G.vertices) + 1):
@@ -31,12 +67,13 @@ def GenSubStrExpr(inStr, leftIdx, rightIdx, graph):
     pRight = vRight.union(ConstantPos(r)) # TODO: We still need to figure out ConstantPos()
     return SubStr(s, pLeft, pRight)
 
-def GenerateDag( vertices, outStr, graph ):
-    """
+"""def GenerateDag( vertices, outStr, graph ):
+    \"""
     Inputs: Takes in input row {v_1, ..., v_k}, an output string o_s, and an IDG G.
     Output: a DAG that represents all string expressions in the language L_s that can transform
         the input strings to the output string.
-    """
+    \"""
+    \"""
     # TODO: Finish this.
     
     # First creates len(o_s) number of nodes with labels eta = {0,...,len(o_s)}
@@ -48,18 +85,49 @@ def GenerateDag( vertices, outStr, graph ):
     #   edge to a constant string expression ConstantStr(o_s[i..j]) and a set 
     #   of substring expressions obtained by calling GenSubStrExpr(v_k,l,r,G) 
     #   (for each (k,l,r) such that v_k[l..(r-1)] = o_s[i..j]).
+    """
+
+def GenerateDag( inputGraph, outStr):
+    dag = DAG(outStr)
+
+    for start in range(len(outStr)):
+        for end in range(start + 1, len(outStr) + 1):
+            subStr = outStr[start:end]
+
+            subStrExprs = GenSubStrExpr(inputGraph, start, end, subStr)
+
+            for expr in subStrExprs:
+                dag.addEdge(start, end, expr)
+    
+    return dag
 
 def Synthesize( ins, outs ):
     """
     Inputs: Arrays of input and output strings.
     Output: The best regex, if any are possible.
     """
-    pass
+    graphs = [InputDataGraph(inStr) for inStr in ins]
+    dags = [
+        generateDag(graph, outStr)
+        for graph, outStr in zip(graphs, outs)
+    ]
 
 if __name__ == "__main__":
-    # TODO: Put everything together.
-    inputs = ['Call me at 913-213-3825.', 'You can reach me at (923) 328-3253', 'My number is +1-390-623-6345, send me a text at anytime!']
-    outputs = ['913-213-3825', '(923) 328-3253', '+1-390-623-6345']
-    bestProg = Synthesize( inputs, outputs )
+    inputs = [
+        "Call me at 913-213-3825.",
+        "You can reach me at (923) 328-3253",
+        "My number is +1-390-623-6345, send me a text at anytime!"
+        ]
+    outputs = [
+        "913-213-3825",
+        "(923) 328-3253",
+        "+1-390-623-6345"
+        ]
+    synthesizedRegex = LearnProgram(inputs, outputs)
+    print(f"Synthesized Regex: {synthesizedRegex}")
 
     # TODO: Once bestProg is a thing, use it on a new input without giving it an output to check.
+    #freshInput = "Contact me at (555) 123-4567."
+    #matches = re.findall(synthesizedRegex, freshInput)
+    #print(f"Extracted Output: {matches}")
+    
