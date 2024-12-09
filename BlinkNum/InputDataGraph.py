@@ -15,7 +15,7 @@ TOKENS = [re.compile("\d+"),
 
 class InputDataGraph:
     def __init__(self, inStr):
-        self.vertices = set()
+        self.vertices = []
         self.edges = {}
         self.I = {}
         self.L = {}
@@ -28,9 +28,9 @@ class InputDataGraph:
         Output: none (Entirely changes the self IDG)
         """
         id = hash(inStr)
-        for i in range(0, len(inStr) + 3):
-            self.vertices = self.vertices.union(self.vertices[i])
-            self.I[i] = { (id, i) }
+        for i in range(0, len(inStr)):
+            self.vertices = (self.vertices) | inStr[i]
+            self.I[inStr[i]] = { (id, i) }
         
         self.L[ (self.vertices[0], self.vertices[1]) ] = { ('^','1') } # Create the first label
         self.L[ (self.vertices[len(inStr)] + 1, self.vertices[len(inStr) + 2]) ] = { ('$','1') } # Create the last label
@@ -40,9 +40,15 @@ class InputDataGraph:
                 leftIdx = i, rightIdx = j-1
                 self.edges = self.edges.union(self.vertices[i], self.vertices[j])
                 constStr = inStr[leftIdx:rightIdx]
-                self.L[ (self.vertices[i], self.vertices[j]) ] = { (constStr, hash(constStr, inStr, i)) }
+                self.L[ (self.vertices[i], self.vertices[j]) ] = { (constStr, self.__GetMatchId(constStr, inStr, i)) }
                 for token in TOKENS and re.match(token, constStr):
-                    self.L[ (self.vertices[i], self.vertices[j]) ] = self.L[ (self.vertices[i], self.vertices[j] )].union(token, hash(token, inStr, i))
+                    self.L[ (self.vertices[i], self.vertices[j]) ] = self.L[ (self.vertices[i], self.vertices[j] )].union(token, self.__GetMatchId(token, inStr, i))
+
+    def __GetMatchId(self, token, str, idx):
+        """
+        Finds the id of the str with a matching token(?)
+        """
+        return
 
     def Rank_Verts(self):
         scores = {v: 0 for v in self.vertices}
@@ -97,7 +103,7 @@ class InputDataGraph:
                 edge.vertex1.out = max(edge.vertex2.out + self.NodeDistance(edge.vertex1, edge.vertex2))
         for v in self.vertices: # TODO: put the vertices in reverse topolgical order (vi, v)
             for edge in self.edges:
-                edge.vertex1.inp = max(edge.vertex1.inp, edge.vertex2.inp + self.NodeDistance(edge.vertex2, edge.vertex1))
+                edge.vertex2.inp = max(edge.vertex2.inp, edge.vertex1.inp + self.NodeDistance(edge.vertex2, edge.vertex1))
         for vertex in self.vertices:
             vertex.score = vertex.inp + vertex.out
         
@@ -123,8 +129,8 @@ class InputDataGraph:
         """
         # NOTE: Professor's thought: For Intesect, check if disjoint first, then merge/intersect.
         graph = InputDataGraph('')
-        graph.vertices = graph1.vertices.intersection(graph2.vertices)
-        graph.edges = graph1.edges.intersection(graph2.edges)
+        graph.vertices = (graph1.vertices).intersection(graph2.vertices)
+        graph.edges = graph1.edges | (graph2.edges)
         graph.I = graph1.I | graph2.I
         graph.L = graph1.L | graph2.L
         return graph
