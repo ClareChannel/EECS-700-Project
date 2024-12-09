@@ -1,51 +1,48 @@
-# BlinkFill paper functions not included in this class:
-# GenerateDag(), GenSubStrExpr(), LearnProgram(), TopRankExpr()
-# Some of these excluded functions may be useful to put in this class, rather than in another class.
+import re
+
+TOKENS = [re.compile("\d+"),
+            re.compile("[a-zA-Z]+"),
+            re.compile("\s+"),
+            re.compile("[A-Z][a-z]+"),
+            re.compile("[A-Z]+"),
+            re.compile("[a-z]+"),
+            re.compile("[a-zA-Z0-9]+"),
+            re.compile("[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*"),
+            re.compile("[A-Z]+(?:\s+[A-Z]+)*"),
+            re.compile("[a-z]+(?:\s+[a-z]+)*"),
+            re.compile("[a-zA-Z]+(?:\s+[a-zA-Z]+)*")
+        ]
 
 class InputDataGraph:
     def __init__(self, inStr):
         self.vertices = set()
-        #self.edges = set()
         self.edges = {}
-        #self.patterns = set()
-        #self.ranked = None
         self.I = {}
         self.L = {}
         self.__GenerateInputGraph(inStr)
     
-    """
     def __GenerateInputGraph(self, inStr):
-        # TODO: Generate an ID?
+        """
+
+        Input: input string
+        Output: none (Entirely changes the self IDG)
+        """
+        id = hash(inStr)
         for i in range(0, len(inStr) + 3):
             self.vertices = self.vertices.union(self.vertices[i])
-            # I[i] = { (id, i) }
-        # L.add( { self.vertices[0], self.vertices[1], {'^','1'} } )
+            self.I[i] = { (id, i) }
+        
+        self.L[ (self.vertices[0], self.vertices[1]) ] = { ('^','1') } # Create the first label
+        self.L[ (self.vertices[len(inStr)] + 1, self.vertices[len(inStr) + 2]) ] = { ('$','1') } # Create the last label
+
         for i in range(1, len(inStr) + 1):
             for j in range(i+1, len(inStr) + 2):
                 leftIdx = i, rightIdx = j-1
-                self.edges = self.edges.union(self.vertices[i], self.vertices[j]) # Should edges be a dict?
-                constantString = inStr[leftIdx:rightIdx]
-                #L( (self.vertices[i], self.vertices[j]) ) = { (constantString, GetMId(constantString, inStr, i)) } # I still don't recall what this is supposed to do.
-                '''
-                # TODO: This still needs to be comprehended so it can be properly finished!
-                for r in T and Match(r, constantString):
-                    L( (self.vertices[i], self.vertices[j]) ) = L( (self.vertices[i], self.vertices[j]) ).union(r, GetMId(r,inStr,i))
-                '''
-        # L.add = { self.vertices[len(inStr) + 1], self.vertices[len(inStr) = 2], {'$','1'} }
-    """
-    def __GenerateInputGraph(self, inStr):
-        strLen = len(inStr)
-        strId = hash(inStr) # Generates a unique ID for the given input string
-
-        # Create vertices for each character index and boundary nodes
-        for i in range(strLen + 1):
-            self.vertices.add(i)
-            self.I[i] = (strId, i) # Map vertex to string ID and index
-
-        # Create edges between the vertices representing substrings
-        for i in range(strLen):
-            for j in range(i + 1, strLen + i):
-                self.edges[(i, j)] = inStr[i:j] # Label edge with the substring
+                self.edges = self.edges.union(self.vertices[i], self.vertices[j])
+                constStr = inStr[leftIdx:rightIdx]
+                self.L[ (self.vertices[i], self.vertices[j]) ] = { (constStr, hash(constStr, inStr, i)) }
+                for token in TOKENS and re.match(token, constStr):
+                    self.L[ (self.vertices[i], self.vertices[j]) ] = self.L[ (self.vertices[i], self.vertices[j] )].union(token, hash(token, inStr, i))
 
     def Rank_Verts(self):
         scores = {v: 0 for v in self.vertices}
@@ -54,9 +51,6 @@ class InputDataGraph:
             scores[start] += distance
             scores[end] += distance
         return sorted(scores.items(), key=lambda item: item[1], reverse=True)
-    
-    def __repr__(self):
-        return f"InputDataGraph(vertices={self.vertices}, edges={self.edges})"
 
     def GenInpDataGraph(self, columns):
         """
@@ -65,10 +59,16 @@ class InputDataGraph:
         Input: Set of all input rows (n), each for k columns/strings.
         Output: Post-union graph.
         """
-        graph = set()
+        graphs = [] # Holds all of the graphs
+
         k = len(columns[0])
+
+        
         for i in range(0, k):
-            graph = graph.union(self.__GenGraphColumn(columns[i]))
+            graph = graphs.append(self.__GenGraphColumn(columns[i]))
+        
+        #unionedGraph # Could just union these to the main IDG?
+
         return graph
 
     def __GenGraphColumn(self, inp):
@@ -77,29 +77,31 @@ class InputDataGraph:
         Input: Set of strings for each row.
         Output: InputDataGraph
         """
-        graph = self.__GenerateInputGraph(inp[0]) # ...?
+        graph = self.__GenerateInputGraph(inp[0])
         n = len(inp)
         for i in range(1, n):
-            graph = self.Intersect(graph, self.__GenerateInputGraph(inp[i]))
+            graph = self.Intersect(graph, self.__GenerateInputGraph(inp[i])) # Should not use IDG, just IG
         return graph
 
     def RankInpGNodes(self):
         """
-        
+        Ranks each vertex based on node distances.
+        Output: Vertex with the highest score
         """
         for vertex in self.vertices:
             vertex.out = 0
             vertex.inp = 0
             vertex.score = 0
-        for vertex in self.vertices: # TODO: put the vertices in topological order
+        for vertex in self.vertices: # TODO: put the vertices in topological order (v, vi)
             for edge in self.edges:
                 edge.vertex1.out = max(edge.vertex2.out + self.NodeDistance(edge.vertex1, edge.vertex2))
-        for v in self.vertices: # TODO: put the vertices in reverse topolgical order
+        for v in self.vertices: # TODO: put the vertices in reverse topolgical order (vi, v)
             for edge in self.edges:
                 edge.vertex1.inp = max(edge.vertex1.inp, edge.vertex2.inp + self.NodeDistance(edge.vertex2, edge.vertex1))
         for vertex in self.vertices:
             vertex.score = vertex.inp + vertex.out
-        # TODO: We could either return the vertex with the highest score, or we could use the self.ranked to a list of the vertices in order and then add a function to get the highest ranked node.
+        
+        # TODO: Need to return the vertex with the highest score
 
     def NodeDistance(self, vertex1, vertex2):
         """
@@ -110,7 +112,7 @@ class InputDataGraph:
         Output: The sum of the equation.
         """
         ret = 0
-        for id in I[vertex1]: # TODO: Need to clarify what I is.
+        for id in self.I[vertex1]:
             ret += abs(vertex2.id - vertex1.id)
         return ret
 
@@ -119,12 +121,10 @@ class InputDataGraph:
         Inputs: Two InputDataGraphs, graph1 and graph 2.
         Outputs: InputDataGraph graph
         """
-        # NOTE: This function may need to be moved to a generalized class (i.e. main).
-
-        # TODO: For Intesect, check if disjoint first, then merge/intersect.
+        # NOTE: Professor's thought: For Intesect, check if disjoint first, then merge/intersect.
         graph = InputDataGraph('')
         graph.vertices = graph1.vertices.intersection(graph2.vertices)
         graph.edges = graph1.edges.intersection(graph2.edges)
-        # TODO: I?
-        # TODO: L?
+        graph.I = graph1.I | graph2.I
+        graph.L = graph1.L | graph2.L
         return graph
