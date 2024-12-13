@@ -12,7 +12,7 @@ class InputDataGraph:
     """
     InputDataGraph class
     """
-    def __init__(self, inputString, index):
+    def __init__(self, inputString, expectedoutput, index):
         """
         Creates an InputDataGraph based on the fresh input string and 
         the intersection of the graphs of all previous inputs.

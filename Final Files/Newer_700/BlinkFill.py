@@ -1,5 +1,3 @@
-
-
 import re
 from InputDataGraph import InputDataGraph
 
@@ -11,10 +9,11 @@ class BlinkFill:
     def __init__(self):
         self.dataGraphs = []
 
-    def add_example(self, inputString, index):
+    def add_example(self, inputString, expectedOutput, index):
         """
+        Add an example with input and expected output.
         """
-        dataGraph = InputDataGraph(inputString, index)
+        dataGraph = InputDataGraph(inputString, expectedOutput, index)
         self.dataGraphs.append(dataGraph)
     
     def synthesize(self):
@@ -35,9 +34,6 @@ class BlinkFill:
         print(f"Synthesized Regex: {synthesized_regex}")
         return [synthesized_regex]
 
-
-
-    
     def extract(self, inputString, regexes):
         """
         Apply synthesized regexes to extract phone numbers.
@@ -53,21 +49,19 @@ class BlinkFill:
                 print(f"Regex error: {e} with regex {regex}")
         return list(results)
 
-
-
 if __name__ == "__main__":
     blinkfill = BlinkFill()
 
-    # Add examples
+    # Add examples with input and expected output
     examples = [
-        "Call me at (123) 456-7890.",
-        "Reach me at 987-654-3210.",
-        "Contact: 123.456.7890.",
-        "Emergency number is 555 123 4567.",
-        "Alternate: 2223334444."
+        ("Call me at (123) 456-7890.", ["(123) 456-7890"]),
+        ("Reach me at 987-654-3210.", ["987-654-3210"]),
+        ("Contact: 123.456.7890.", ["123.456.7890"]),
+        ("Emergency number is 555 123 4567.", ["555 123 4567"]),
+        ("Alternate: 2223334444.", ["2223334444"]),
     ]
-    for i, ex in enumerate(examples):
-        blinkfill.add_example(ex, i)
+    for i, (inputString, expectedOutput) in enumerate(examples):
+        blinkfill.add_example(inputString, expectedOutput, i)
 
     # Synthesize regex
     regexes = blinkfill.synthesize()
@@ -76,4 +70,3 @@ if __name__ == "__main__":
     newInput = "My numbers are (555) 123-4578 and 222-333-4444. Also 123.456.7890."
     extractedData = blinkfill.extract(newInput, regexes)
     print(f"Extracted Data: {extractedData}")
-
